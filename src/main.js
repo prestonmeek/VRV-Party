@@ -1,9 +1,9 @@
 const waitUntilExists = (id, tick = 250) => {
     return new Promise(resolve => {
         const interval = setInterval(() => {
-            if ($('#' + id)[0]) {
+            if ($('#' + id)) {
                 clearInterval(interval);
-                resolve($('#' + id)[0]);
+                resolve($('#' + id));
             }
         }, tick);
     });
@@ -13,18 +13,17 @@ const handleSocketEvents = function(socket) {
     socket.on('connect', () => {
         const roomID = jQuery.isEmptyObject(URI(document.referrer).query(true)) ? null : String(URI(document.referrer).query(true).id);
         
-        if (roomID) {
+        if (roomID)
             socket.emit('joining room', roomID);
-            console.log('yeeyee' + roomID);
-        }
-            
     });
 
-    socket.on('host', async bool => {
+    socket.on('host', async bool => { // it has been determined if the socket is the host or not
         socket.host = bool;
 
-        this.video = await waitUntilExists('player_html5_api'); // ready to handle video events
-        handleVideoEvents(this.video);
+        waitUntilExists('player_html5_api').then(video => { // ready to handle video events
+            this.video = video[0];    // video element
+            handleVideoEvents(video); // jquery object
+        });
     });
 
     socket.on('pause', () => {
@@ -32,22 +31,21 @@ const handleSocketEvents = function(socket) {
     });
 
     socket.on('play', time => {
-        console.log(time);
-        this.video.currentTime = Math.round(time);
+        this.video.currentTime = time;
         this.video.play();
     });
 }
 
 const handleVideoEvents = video => {
-    video.onpause = () => {
+    video.on('pause', () => {
         if (socket.host)
             socket.emit('pause');
-    }
+    });
 
-    video.onplay = () => {
+    video.on('play', () => {
         if (socket.host)
             socket.emit('play', {videoTime: this.video.currentTime, time: new Date().getTime()});
-    }
+    });
 }
 
 const socket = io('http://127.0.0.1:3000', {

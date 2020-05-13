@@ -28,14 +28,17 @@ class Server {
         
             socket.on('pause', () => {
                 const id = this.getSocketRoom(socket.id);
+
                 logger.write('Pausing video in room ' + id);
                 socket.broadcast.to(id).emit('pause');
             });
         
             socket.on('play', data => {
                 const id = this.getSocketRoom(socket.id);
-                logger.write('Playing video in room ' + id + ' at time ' + data.videoTime);
-                socket.broadcast.to(id).emit('play', data.videoTime + (new Date().getTime() - data.time));
+                const time = Math.round(data.videoTime + (new Date().getTime() - data.time));
+
+                logger.write('Playing video in room ' + id + ' at time ' + time);
+                socket.broadcast.to(id).emit('play', time);
             });
 
             socket.on('disconnect', () => {
