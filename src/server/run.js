@@ -1,7 +1,7 @@
 'use strict';
 
-const http = require('http').createServer();
-const io = require('socket.io')(http);
+const http   = require('http').createServer();
+const io     = require('socket.io')(http);
 const logger = require('./logger');
 
 class Server {
@@ -34,8 +34,8 @@ class Server {
             });
         
             socket.on('play', data => {
-                const id = this.getSocketRoom(socket.id);
-                const time = Math.round(data.videoTime + (new Date().getTime() - data.time));
+                const id   = this.getSocketRoom(socket.id);
+                const time = data.videoTime + (new Date().getTime() - data.time);
 
                 logger.write('Playing video in room ' + id + ' at time ' + time);
                 socket.broadcast.to(id).emit('play', time);
