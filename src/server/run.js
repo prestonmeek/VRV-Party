@@ -18,15 +18,20 @@ class Server {
             socket.on('joining room', id => {
                 logger.write('Socket ' + socket.id + ' joining room with ID ' + id);
 
-                if (!io.sockets.adapter.rooms[id]) // if room doesn't exist
+                if (!io.sockets.adapter.rooms[id]) { // if room doesn't exist
+                    socket.host = true;
                     socket.emit('host', true);
-                else
+                } else {
+                    socket.host = false;
                     socket.emit('host', false);
+                }
 
                 socket.join(id);
             });
         
             socket.on('pause', () => {
+                if (!socket.host) return;
+
                 const id = this.getSocketRoom(socket.id);
 
                 logger.write('Pausing video in room ' + id);
@@ -34,6 +39,8 @@ class Server {
             });
         
             socket.on('play', data => {
+                if (!socket.host) return;
+                
                 const id   = this.getSocketRoom(socket.id);
                 const time = data.videoTime + (new Date().getTime() - data.time);
 

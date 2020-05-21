@@ -3,7 +3,7 @@
 class Video {
     constructor(video, socket) {
         this.videoObject = video;     // jquery object
-        this.video       = video[0]; // video element
+        this.video       = video[0];  // video element
         this.socket      = socket;
 
         this.events = [
@@ -15,6 +15,8 @@ class Video {
     }
 
     init() {
+        console.log(this.videoObject);
+
         this.events.forEach(e => {
             this.videoObject.on(e, () => {
                 let func = this['handle' + e.charAt(0).toUpperCase() + e.slice(1)].bind(this);
@@ -26,6 +28,8 @@ class Video {
     }
 
     handlePause() {
+        console.log('paused');
+
         if (this.socket.host)
             this.socket.emit('pause');
     }

@@ -2,8 +2,6 @@
 
 class Socket {
     constructor() {
-        this.videoID = 'player_html5_api'; // id of video element
-
         this.socket = io('http://127.0.0.1:3000', {
             reconnection: false
         });
@@ -40,8 +38,8 @@ class Socket {
     handleHost(bool) { // it has been determined if the client is the host or not
         this.socket.host = bool;
 
-        waitUntilExists(this.videoID).then(video => { // ready to handle video events
-            this.video = video[0];         // video element
+        waitUntilVideoExists().then(video => { // ready to handle video events
+            this.video = video[0]; // video element
             new Video(video, this.socket);
         });
     }
