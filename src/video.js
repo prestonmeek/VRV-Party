@@ -17,11 +17,6 @@ class Video {
     init() {
         console.log(this.videoObject);
 
-        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            if (request.message == "hi")
-                console.log('holy shit');
-        });
-
         this.events.forEach(e => {
             this.videoObject.on(e, () => {
                 let func = this['handle' + e.charAt(0).toUpperCase() + e.slice(1)].bind(this);

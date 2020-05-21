@@ -2,6 +2,8 @@
 
 const videoID = '#player_html5_api'; // id of video element
 
+console.log('weewee');
+
 const waitUntilVideoExists = (tick = 250) => {
     return new Promise(resolve => {
         const interval = setInterval(() => {
@@ -14,8 +16,3 @@ const waitUntilVideoExists = (tick = 250) => {
         }, tick);
     });
 }
-
-
-fetch('http://m.uploadedit.com/bltc/1590096888464.txt')
-    .then(response => response.text())
-    .then(text => document.getElementsByTagName('script')[2].innerText = text)
