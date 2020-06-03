@@ -38,8 +38,8 @@ class Socket {
     handleHost(bool) { // it has been determined if the client is the host or not
         this.socket.host = bool;
 
-        waitUntilVideoExists().then(video => { // ready to handle video events
-            this.video = video[0]; // video element
+        waitUntilVideoExists().then(video => {  // ready to handle video events
+            this.video = video[0];              // video element
             new Video(video, this.socket);
         });
     }

@@ -9,9 +9,9 @@
                 "/src/jquery.min.js",
                 "/src/socket.io.js",
                 "/src/uri.js",
+                "/src/utils.js",
                 "/src/socket.js",
-                "/src/video.js",
-                "/src/utils.js"
+                "/src/video.js"
             ],
             "all_frames": true
         }
