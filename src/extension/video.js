@@ -15,11 +15,9 @@ class Video {
     }
 
     init() {
-        console.log(this.videoObject);
-
         this.events.forEach(e => {
             this.videoObject.on(e, () => {
-                let func = this['handle' + e.charAt(0).toUpperCase() + e.slice(1)].bind(this);
+                let func = this[functionFormat(e)].bind(this);
 
                 if (func && typeof func == 'function')
                     func();

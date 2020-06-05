@@ -6,17 +6,17 @@
         {
             "matches": ["https://static.vrv.co/vilos/player.html"],
             "js": [
-                "/src/jquery.min.js",
-                "/src/socket.io.js",
-                "/src/uri.js",
-                "/src/utils.js",
-                "/src/socket.js",
-                "/src/video.js"
+                "/jquery.min.js",
+                "/socket.io.js",
+                "/uri.js",
+                "/utils.js",
+                "/socket.js",
+                "/video.js"
             ],
             "all_frames": true
         }
     ],
     "browser_action": {
-        "default_popup": "/src/index.html"
+        "default_popup": "/index.html"
     }
 }

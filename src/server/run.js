@@ -1,12 +1,23 @@
 'use strict';
 
-const http   = require('http').createServer();
-const io     = require('socket.io')(http);
-const logger = require('./logger');
+const http    = require('http').createServer();
+const io      = require('socket.io')(http);
+const shortid = require('shortid');
+
+const logger             = require('./utils/logger');
+const { functionFormat}  = require('./utils/utils');
 
 class Server {
     constructor() {
         this.port = Number(process.argv[2]) || 3000;
+
+        this.events = [
+            'pause',
+            'play',
+            'create room',
+            'join room',
+            'disconnect'
+        ]
 
         this.init();
     }
@@ -14,48 +25,63 @@ class Server {
     init() {
         io.on('connection', socket => {
             logger.write('Socket connected with ID ' + socket.id);
-        
-            socket.on('joining room', id => {
-                logger.write('Socket ' + socket.id + ' joining room with ID ' + id);
 
-                if (!io.sockets.adapter.rooms[id]) { // if room doesn't exist
-                    socket.host = true;
-                    socket.emit('host', true);
-                } else {
-                    socket.host = false;
-                    socket.emit('host', false);
-                }
-
-                socket.join(id);
-            });
-        
-            socket.on('pause', () => {
-                if (!socket.host) return;
-
-                const id = this.getSocketRoom(socket.id);
-
-                logger.write('Pausing video in room ' + id);
-                socket.broadcast.to(id).emit('pause');
-            });
-        
-            socket.on('play', data => {
-                if (!socket.host) return;
-                
-                const id   = this.getSocketRoom(socket.id);
-                const time = data.videoTime + (new Date().getTime() - data.time);
-
-                logger.write('Playing video in room ' + id + ' at time ' + time);
-                socket.broadcast.to(id).emit('play', time);
-            });
-
-            socket.on('disconnect', () => {
-                logger.write('Socket ' + socket.id + ' disconnected');
+            this.events.forEach(e => {
+                socket.on(e, args => {
+                    let func = this[functionFormat(e)].bind(this);
+    
+                    if (func && typeof func == 'function')
+                        func(socket, args);
+                });
             });
         });
 
         http.listen(this.port, () => {
             logger.write('Listening on port ' + this.port);
         });
+    }
+
+    handlePause(socket) {
+        if (!socket.host) return;
+
+        const id = this.getSocketRoom(socket.id);
+
+        logger.write('Pausing video in room ' + id);
+        socket.broadcast.to(id).emit('pause');
+    }
+
+    handlePlay(socket, data) {
+        if (!socket.host) return;
+                
+        const id   = this.getSocketRoom(socket.id);
+        const time = data.videoTime + (new Date().getTime() - data.time);
+
+        logger.write('Playing video in room ' + id + ' at time ' + time);
+        socket.broadcast.to(id).emit('play', time);
+    }
+
+    handleCreateRoom(socket) {
+        const id = shortid.generate();
+
+        console.log(id);
+    }
+
+    handleJoinRoom(socket, id) {
+        logger.write('Socket ' + socket.id + ' joining room with ID ' + id);
+
+        if (!io.sockets.adapter.rooms[id]) { // if room doesn't exist
+            socket.host = true;
+            socket.emit('host', true);
+        } else {
+            socket.host = false;
+            socket.emit('host', false);
+        }
+
+        socket.join(id); // joining room
+    }
+
+    handleDisconnect(socket) {
+        logger.write('Socket ' + socket.id + ' disconnected');
     }
 
     getSocketRoom(sid) {

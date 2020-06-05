@@ -15,20 +15,20 @@ class Logger {
     }
 
     init() {
-        for (var i in this.types) {
+        for (let i in this.types) {
             createLevel.bind(this)(i);
         }
     }
 
     getDate() {
-        var d = new Date();
+        let d = new Date();
         return `${(d.getUTCMonth() + 1)}/${d.getUTCDate()}/${d.getUTCFullYear()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()}`;
     }
 };
 
 const createLevel = function(i) {    
     Logger[i] = data => {
-        var date = this.getDate();
+        let date = this.getDate();
 
         console.log(`${(`[${(this.types[i].tag || i).toUpperCase()}]${this.types[i].date ? `[${date}]` : ''}`)[this.colors.indexOf(this.types[i].color) > -1 ? this.types[i].color : 'green']} > ${data}`);
 

@@ -13,16 +13,29 @@ class Socket {
             'play'
         ];
 
+        this.chromeEvents = [
+            'create room'
+        ]
+
         this.init();
     }
 
     init() {
         this.events.forEach(e => {
             this.socket.on(e, args => {
-                let func = this['handle' + e.charAt(0).toUpperCase() + e.slice(1)].bind(this);
+                let func = this[functionFormat(e)].bind(this);
 
                 if (func && typeof func == 'function')
                     func(args);
+            });
+        });
+
+        this.chromeEvents.forEach(e => {
+            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+                let func = this[functionFormat(e)].bind(this);
+
+                if (e == request.event && func && typeof func == 'function')
+                    func(sendResponse);
             });
         });
     }
@@ -32,10 +45,10 @@ class Socket {
         const roomID = jQuery.isEmptyObject(query) ? null : String(query.id); // just checking if there is a room ID or not
         
         if (roomID)
-            this.socket.emit('joining room', roomID);
+            this.socket.emit('join room', roomID);
     }
 
-    handleHost(bool) { // it has been determined if the client is the host or not
+    handleHost(bool) {                          // it has been determined if the client is the host or not
         this.socket.host = bool;
 
         waitUntilVideoExists().then(video => {  // ready to handle video events
@@ -51,6 +64,10 @@ class Socket {
     handlePlay(time) {
         this.video.currentTime = time;
         this.video.play();
+    }
+
+    handleCreateRoom() {
+        this.socket.emit('create room');
     }
 }
 
