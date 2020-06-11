@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
     functionFormat: (name) => {
         let res = name.split(' ');

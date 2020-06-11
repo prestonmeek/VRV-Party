@@ -1,42 +1,41 @@
 'use strict';
 
 const colors = require('colors');
-const fs     = require('fs');
 
-class Logger {
-    constructor(extra) {
-        this.types = Object.assign({
-            'write': {'tag': 'info', 'color': 'green', 'date': true},
-            'warn': {'tag': 'warning', 'color': 'yellow', 'date': true},
-            'error': {'color': 'red', 'date': true}
-        }, extra);
-        this.colors = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'gray', 'grey'];
-        this.filePath = __dirname + '/logs.txt';
-    }
-
-    init() {
-        for (let i in this.types) {
-            createLevel.bind(this)(i);
-        }
-    }
-
-    getDate() {
-        let d = new Date();
-        return `${(d.getUTCMonth() + 1)}/${d.getUTCDate()}/${d.getUTCFullYear()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds()}`;
-    }
-};
-
-const createLevel = function(i) {    
-    Logger[i] = data => {
-        let date = this.getDate();
-
-        console.log(`${(`[${(this.types[i].tag || i).toUpperCase()}]${this.types[i].date ? `[${date}]` : ''}`)[this.colors.indexOf(this.types[i].color) > -1 ? this.types[i].color : 'green']} > ${data}`);
-
-        if (this.types[i].log == true)
-            fs.appendFileSync(this.filePath, `[${(this.types[i].tag || i).toUpperCase()}][${date}] > ${data}\n`, (err) => {if (err) throw err});
+const types = {
+    'write': {
+        'tag': 'info', 
+        'color': 'green'
+    },
+    'warn':  {
+        'tag': 'warning', 
+        'color': 'yellow'
+    },
+    'error': {
+        'tag': 'error', 
+        'color': 'red'
     }
 }
 
-new Logger().init();
+const getDate = () => {
+    const d = new Date();
+    const boundGetInfo = getInfo.bind(d);
 
-module.exports = Logger;
+    return `${Number(boundGetInfo('Month')) + 1}/${boundGetInfo('Date')}/${boundGetInfo('FullYear')} ${boundGetInfo('Hours')}:${boundGetInfo('Minutes')}:${boundGetInfo('Seconds')}`;
+}
+
+const createLevel = i => {
+    module.exports[i] = data => {
+        const obj  = types[i];
+        const date = getDate();
+
+        console.log(`[${obj.tag.toUpperCase()}][${date}] > ${data}`[obj.color]);
+    }
+}
+
+const getInfo = function(type) {
+    return this['get' + type]() < 10 ? '0' + this['get' + type]() : this['get' + type]();
+}
+
+for (let i in types)
+    createLevel(i)
